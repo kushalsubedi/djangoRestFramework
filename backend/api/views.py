@@ -8,7 +8,7 @@ from products.models import Product
 # Create your views here.
 
 
-@api_view(["POST"])# converting normal view to an REST api veiw 
+@api_view(["post"])# converting normal view to an REST api veiw 
 def api_home (request, *args,**kwargs): 
     '''
     Django Rest framework api veiw 
@@ -25,9 +25,10 @@ def api_home (request, *args,**kwargs):
 
     serializer = ProductSerializer(data=request.data)
     if serializer.is_valid():
-        print (serializer.data)
+        instance=serializer.save()
+        print(instance)
         return Response(serializer.data)
-    return Response({"invalid data"},status=400)
+    return Response({"invalid data"},status=405.40)
 
     # instance= Product.objects.all().order_by("?").first()
     # data = {}
