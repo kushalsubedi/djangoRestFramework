@@ -1,9 +1,9 @@
 import requests
 
-endpoint ="http://localhost:8000/api/products"
+endpoint ="http://localhost:8000/api/products/"
 
 data= {
-    'title': "not empty ",
+    'title': "mixin doing awesome task "
 }
 get_response = requests.post(endpoint,json=data)
 

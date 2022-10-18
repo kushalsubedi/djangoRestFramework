@@ -7,9 +7,18 @@ from . import views
 urlpatterns = [
     # path('',views.productCreateView),
     # path('<int:pk>/',views.ProductDetailAPIView.as_view()),
-#    path('<int:pk>/',views.productDetailView),
+    # path('<int:pk>/',views.productDetailView),
 
 
-    path('',views.product_alt_View),
-    path('<int:pk>/',views.product_alt_View),
+    #path('',views.product_alt_View),
+   
+    path('<int:pk>/update/',views.productUpdateView), #class Based views
+    path('<int:pk>/delete/',views.productDestroyView), #class Based views
+
+    ## Function based views
+    #path('<int:pk>/delete/',views.product_alt_View),
+    #path('<int:pk>/',views.product_alt_View),
+
+    #generic mixin views
+    path('',views.ProductMixinViews.as_view())
 ]
