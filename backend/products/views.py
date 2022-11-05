@@ -1,13 +1,14 @@
 
-
 from django.http import Http404
-from rest_framework import generics,mixins
+from rest_framework import authentication,generics,mixins,permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from yaml import serialize
 # from django.http import Http404
+from api.authentication import TokenAuthentication
 from .models import Product
+from api.permissions import IsStaffEditorPermission
 from .serializers import ProductSerializer
 
 # Class based generic views 
@@ -15,6 +16,15 @@ from .serializers import ProductSerializer
 class productListCreateAPIView(generics.ListCreateAPIView):
      queryset=Product.objects.all()
      serializer_class=ProductSerializer
+
+     #sessions and permission 
+     #authentication_classes = [authentication.SessionAuthentication,authentication.TokenAuthentication]
+    #you can create your own authentication class and #include as ... 
+     #authentication_classes = [authentication.SessionAuthentication,TokenAuthentication]
+     permission_classes=[permissions.IsAdminUser,IsStaffEditorPermission]
+
+
+
      def perform_create(self, serializer):
          title = serializer.validated_data.get('tilte')
          content = serializer.validated_data.get('content') or None
@@ -22,11 +32,23 @@ class productListCreateAPIView(generics.ListCreateAPIView):
              content =title
          serializer.save(content=content)
       
+     def get_queryset(self, *args,**kwargs):
+        qs=super().get_queryset(*args,**kwargs)
+        request = self.request
+        user = request.user
+        if not user.is_authenticated:
+            return Product.objects.none()
+        return qs.filter(user=request.user)
+        
+
+
 productCreateView =productListCreateAPIView.as_view()  #changing class based views as function based typo
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes=[permissions.IsAdminUser,IsStaffEditorPermission]
+
 productDetailView = ProductDetailAPIView.as_view()
 
 
@@ -34,11 +56,12 @@ class ProductUpdateAPIView(generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field ='pk'
-
+    permission_classes=[permissions.IsAdminUser,IsStaffEditorPermission]
     def Perform_update(self, serializer):
         instance=serializer.save()
         if not instance.content:
             instance.content=instance.title
+   
         
 productUpdateView = ProductUpdateAPIView.as_view()
 
@@ -47,7 +70,7 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field ='pk'
-
+    permission_classes=[permissions.IsAdminUser,IsStaffEditorPermission]
     def perform_destroy(self, instance):
         return super().perform_destroy(instance)
 
